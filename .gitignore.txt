@@ -1,0 +1,64 @@
+# 🔐 Секретные ключи и настройки
+.env
+*.env
+.env.local
+.streamlit/secrets.toml
+config.py
+secrets.py
+
+# 🐍 Python файлы
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 🏠 Виртуальные окружения
+venv/
+env/
+ENV/
+
+# 📊 Jupyter Notebook
+.ipynb_checkpoints
+
+# 💻 Системные файлы
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 🛠️ IDE и редакторы
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 📦 Streamlit кэш
+.streamlit/cache/
+
+# 🗄️ Базы данных
+*.db
+*.sqlite3
+
+# 📁 Временные файлы
+temp/
+tmp/
