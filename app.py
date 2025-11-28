@@ -113,6 +113,12 @@ def poluchit_otvet_yandex(personazh, vopros):
 
 # ==================== ОСНОВНАЯ ЧАСТЬ ПРИЛОЖЕНИЯ ====================
 
+# Инициализация состояния
+if 'vybranniy_personazh' not in st.session_state:
+    st.session_state.vybranniy_personazh = None
+if 'istorija_chata' not in st.session_state:
+    st.session_state.istorija_chata = []
+
 # 🏰 Заголовок приложения
 st.title("👑 Чат с Русскими Царями")
 st.markdown("### 💬 Задай вопрос историческому персонажу!")
@@ -150,7 +156,7 @@ with st.sidebar:
     st.info("💡 **Совет:** Спроси о реформах, войнах, науках или жизни того времени!")
 
 # 💬 Основная область - чат с царем
-if 'vybranniy_personazh' in st.session_state:
+if st.session_state.vybranniy_personazh:
     # 👑 Достаем выбранного персонажа
     personazh = st.session_state.vybranniy_personazh
     imya = PERSONAZHI[personazh]["name"]
@@ -161,23 +167,22 @@ if 'vybranniy_personazh' in st.session_state:
     st.success(f"**О персонаже:** {PERSONAZHI[personazh]['opisanie']}")
     
     # 📜 Область истории чата
-    with st.container():
-        st.subheader("📜 История беседы:")
-        st.markdown("---")
-        
-        # 📝 Показываем все сообщения
-        for soobshenie in st.session_state.istorija_chata:
-            if "Ты:" in soobshenie:
-                st.markdown(f"🎯 **{soobshenie}**")
-            else:
-                st.markdown(f"👑 **{soobshenie}**")
-            st.markdown("---")
+    st.subheader("📜 История беседы:")
+    st.markdown("---")
     
-    # ✍️ Поле для ввода вопроса (простое, без сложного управления состоянием)
-    vopros = st.text_area(
+    # 📝 Показываем все сообщения
+    for soobshenie in st.session_state.istorija_chata:
+        if "Ты:" in soobshenie:
+            st.markdown(f"🎯 **{soobshenie}**")
+        else:
+            st.markdown(f"👑 **{soobshenie}**")
+        st.markdown("---")
+    
+    # ✍️ Поле для ввода вопроса
+    vopros = st.text_input(
         "💭 Твой вопрос царю:",
         placeholder="Например: Зачем Вы рубили бороды? Или: Почему построили Петербург на болотах?",
-        height=100
+        key="vopros_input"
     )
     
     # 📨 Кнопка отправки
@@ -194,15 +199,23 @@ if 'vybranniy_personazh' in st.session_state:
             # ➕ Добавляем ответ в историю
             st.session_state.istorija_chata.append(f"{avatar} **{imya}:** {otvet}")
             
-            # 🔄 Обновляем страницу (поле ввода очистится само)
-            st.rerun()
+            # Очищаем поле ввода через JavaScript
+            st.markdown(
+                """
+                <script>
+                var input = window.parent.document.querySelector('input[type="text"]');
+                if (input) input.value = '';
+                </script>
+                """,
+                unsafe_allow_html=True
+            )
+            
         else:
             st.warning("📝 Напиши вопрос перед отправкой!")
     
     # 🧹 Кнопка очистки чата
     if st.button("🗑️ Начать беседу заново", type="secondary"):
         st.session_state.istorija_chata = [f"{avatar} **{imya}:** Здравствуй! О чем хочешь поговорить?"]
-        st.rerun()
 
 # 🏠 Если персонаж еще не выбран - показываем приветствие
 else:
@@ -251,3 +264,4 @@ with st.expander("🔧 О проекте"):
 # 📝 Футер
 st.markdown("---")
 st.caption("🎓 Образовательный проект | 🤖 Работает на Yandex GPT AI")
+
