@@ -118,6 +118,8 @@ if 'vybranniy_personazh' not in st.session_state:
     st.session_state.vybranniy_personazh = None
 if 'istorija_chata' not in st.session_state:
     st.session_state.istorija_chata = []
+if 'last_question' not in st.session_state:
+    st.session_state.last_question = ""
 
 # 🏰 Заголовок приложения
 st.title("👑 Чат с Русскими Царями")
@@ -141,16 +143,19 @@ with st.sidebar:
         if st.button("🧔 Петр I", use_container_width=True, key="petr_btn"):
             st.session_state.vybranniy_personazh = "petr"
             st.session_state.istorija_chata = ["🧔 **Петр I:** Здравствуй! Я Петр Великий. О чем хочешь спросить?"]
+            st.session_state.last_question = ""
     
     with col2:
         if st.button("👸 Екатерина II", use_container_width=True, key="ekat_btn"):
             st.session_state.vybranniy_personazh = "ekaterina"
             st.session_state.istorija_chata = ["👸 **Екатерина II:** Здравствуй, мой друг! Я Екатерина Великая. Что тебя интересует?"]
+            st.session_state.last_question = ""
     
     with col3:
         if st.button("👑 Иван Грозный", use_container_width=True, key="ivan_btn"):
             st.session_state.vybranniy_personazh = "ivan"
             st.session_state.istorija_chata = ["👑 **Иван Грозный:** Здравствуй! Я царь Иван IV. О чем желаешь знать?"]
+            st.session_state.last_question = ""
     
     st.markdown("---")
     st.info("💡 **Совет:** Спроси о реформах, войнах, науках или жизни того времени!")
@@ -178,16 +183,23 @@ if st.session_state.vybranniy_personazh:
             st.markdown(f"👑 **{soobshenie}**")
         st.markdown("---")
     
-    # ✍️ Поле для ввода вопроса
-    vopros = st.text_input(
-        "💭 Твой вопрос царю:",
-        placeholder="Например: Зачем Вы рубили бороды? Или: Почему построили Петербург на болотах?",
-        key="vopros_input"
-    )
+    # ✍️ ФОРМА для ввода вопроса (чтобы избежать повторных отправок)
+    with st.form(key=f"chat_form_{personazh}", clear_on_submit=True):
+        vopros = st.text_input(
+            "💭 Твой вопрос царю:",
+            placeholder="Например: Зачем Вы рубили бороды? Или: Почему построили Петербург на болотах?",
+            key=f"vopros_input_{personazh}"
+        )
+        
+        # 📨 Кнопка отправки внутри формы
+        otpravleno = st.form_submit_button("📨 Отправить вопрос", type="primary")
     
-    # 📨 Кнопка отправки
-    if st.button("📨 Отправить вопрос", type="primary", key="send_btn"):
-        if vopros.strip():
+    # Обработка отправки формы
+    if otpravleno:
+        if vopros and vopros.strip() and vopros != st.session_state.last_question:
+            # Сохраняем текущий вопрос чтобы избежать повторений
+            st.session_state.last_question = vopros
+            
             # ➕ Добавляем вопрос в историю
             st.session_state.istorija_chata.append(f"Ты: {vopros}")
             
@@ -199,23 +211,15 @@ if st.session_state.vybranniy_personazh:
             # ➕ Добавляем ответ в историю
             st.session_state.istorija_chata.append(f"{avatar} **{imya}:** {otvet}")
             
-            # Очищаем поле ввода через JavaScript
-            st.markdown(
-                """
-                <script>
-                var input = window.parent.document.querySelector('input[type="text"]');
-                if (input) input.value = '';
-                </script>
-                """,
-                unsafe_allow_html=True
-            )
-            
+        elif vopros == st.session_state.last_question:
+            st.warning("⏳ Уже отвечаю на этот вопрос...")
         else:
             st.warning("📝 Напиши вопрос перед отправкой!")
     
     # 🧹 Кнопка очистки чата
-    if st.button("🗑️ Начать беседу заново", type="secondary"):
+    if st.button("🗑️ Начать беседу заново", type="secondary", key="clear_btn"):
         st.session_state.istorija_chata = [f"{avatar} **{imya}:** Здравствуй! О чем хочешь поговорить?"]
+        st.session_state.last_question = ""
 
 # 🏠 Если персонаж еще не выбран - показываем приветствие
 else:
@@ -264,4 +268,3 @@ with st.expander("🔧 О проекте"):
 # 📝 Футер
 st.markdown("---")
 st.caption("🎓 Образовательный проект | 🤖 Работает на Yandex GPT AI")
-
