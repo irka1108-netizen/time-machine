@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: time-machine-app
+    name: time-machine
     env: python
     region: frankfurt  # Или singapore, ohio, etc
     plan: free
