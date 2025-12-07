@@ -1,21 +1,38 @@
-// Конфигурация для GitHub Pages
+// Конфигурация для GitHub Pages с Яндекс GPT
 const CONFIG = {
-    // Режим работы: 'api' или 'demo'
-    MODE: 'demo',
+    // Режим работы: 'api' - реальный Яндекс GPT, 'demo' - демо-режим
+    MODE: 'api',  // ← ИЗМЕНИТЕ НА 'api' для Яндекс GPT
     
-    // Для режима 'api' - вставьте свои ключи:
-    YANDEX_API_KEY: 'AQVN0ZcLew0gqWKyFZWMKN7RUTVP8YnzX8oEVydv',
-    YANDEX_FOLDER_ID: 'b1gof6m2ru5t8pqmchi9',
+    // ВАШИ КЛЮЧИ ОТ ЯНДЕКС ОБЛАКА (замените на свои!):
+    YANDEX_API_KEY: 'AQVN0ZcLew0gqWKyFZWMKN7RUTVP8YnzX8oEVydv',  // ← ВСТАВЬТЕ СВОЙ КЛЮЧ
+    YANDEX_FOLDER_ID: 'b1gof6m2ru5t8pqmchi9',  // ← ВСТАВЬТЕ СВОЙ FOLDER_ID
     
-    // Для режима 'demo' - использовать демо-ответы
-    USE_DEMO: true
+    // Использовать демо-ответы если API не работает
+    USE_DEMO_IF_API_FAILS: true,
+    
+    // Прокси для обхода CORS (если нужен)
+    USE_PROXY: true,
+    PROXY_URL: 'https://api.allorigins.win/raw?url='
 };
 
+// Системные промпты для правителей
 const RULERS = {
     ivan: {
         name: 'Иван IV Грозный',
         description: 'Первый царь всея Руси, суровый и противоречивый правитель',
         avatar: '👑',
+        systemPrompt: `Ты - царь Иван IV Грозный (годы жизни: 1530-1584). 
+Говоришь грозно, властно, с религиозными оборотами. 
+Часто упоминаешь 'Божью волю', 'государево дело'. 
+Можешь быть вспыльчивым, подозрительным, но также показывать образованность. 
+Говори как человек из 16 века, используй старинные обороты: вельми, чадо, болярин. 
+Отвечай кратко (3-5 предложений). Никогда не выходи из образа!
+
+Примеры твоих ответов:
+- "Вельми дивный вопрос задаешь, чадо! По Божьей воле и государеву делу..."
+- "Чадо, спрашиваешь о делах государственных? Все делалось для укрепления царства Московского!"
+- "Вопрос твой вельми любопытен. Как царь всея Руси, я должен был..."`,
+        
         demoResponses: [
             "Вельми дивный вопрос задаешь, чадо! По Божьей воле и государеву делу опричнина была нужна для очищения земли русской от крамолы боярской!",
             "Чадо, спрашиваешь о делах государственных? Казань взял для расширения державы и защиты от набегов! Так надлежало по Божьему промыслу.",
@@ -26,6 +43,17 @@ const RULERS = {
         name: 'Петр I Великий',
         description: 'Царь-реформатор, любит корабли и науки',
         avatar: '🧔',
+        systemPrompt: `Ты - царь Петр I Великий (годы жизни: 1672-1725). 
+Говоришь грубовато и прямо, используй старинные слова: чаю, надобно, негоже. 
+Обожаешь корабли и науки. Ненавидишь старые порядки. 
+Отвечай кратко (3-5 предложений). Никогда не выходи из образа! 
+Отвечай как человек из 18 века.
+
+Примеры твоих ответов:
+- "Эх, молодец, что спрашиваешь! Надобно было Русь к морю повернуть..."
+- "Так, слушай! Все для пользы государства делал. Корабли строил, науки развивал!"
+- "Чаю, вопрос разумный! Прогресс и развитие - вот что важно для державы!"`,
+        
         demoResponses: [
             "Эх, молодец, что спрашиваешь! Бороды рубил, ибо мешали они! Европа не носит — и нам негоже! Надобно было страну к прогрессу вести!",
             "Так, слушай! Петербург на болотах строил, ибо выход к морю нужен был! Корабли строить, торговать с Европой!",
@@ -36,6 +64,17 @@ const RULERS = {
         name: 'Екатерина II Великая',
         description: 'Умная императрица, любит искусство',
         avatar: '👸',
+        systemPrompt: `Ты - императрица Екатерина II Великая (годы жизни: 1729-1796). 
+Говоришь умно и изящно, цитируй философов: Вольтера, Дидро. 
+Любишь искусство и науки. Мудрая и ироничная. 
+Отвечай кратко (3-5 предложений). Никогда не выходи из образа! 
+Отвечай как человек из 18 века.
+
+Примеры твоих ответов:
+- "Мой друг, как приятно беседовать с просвещенным человеком! Как говаривал Вольтер..."
+- "Искусство управлять - это искусство просвещать. Я, как истинная дочь эпохи Просвещения..."
+- "Прекрасный вопрос! Умение слушать философов и учиться у них - признак мудрого правителя..."`,
+        
         demoResponses: [
             "Мой друг, как приятно беседовать с просвещенным человеком! Просвещенный абсолютизм — это когда монарх правит для блага подданных, следуя разуму.",
             "С философами переписывалась, ибо считала: правитель должен быть образован! Как говаривал Вольтер, невежество — мать всех пороков.",
@@ -44,6 +83,7 @@ const RULERS = {
     }
 };
 
+// Глобальные переменные
 let currentRuler = null;
 let chatHistory = [];
 
@@ -66,21 +106,48 @@ const closeErrorBtn = document.getElementById('close-error-btn');
 const closeModalBtn = document.querySelector('.close-modal');
 const currentYear = document.getElementById('current-year');
 
-// Инициализация
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Устанавливаем текущий год в футере
     currentYear.textContent = new Date().getFullYear();
+    
+    // Назначаем обработчики событий
     setupEventListeners();
+    
+    // Восстанавливаем историю чата из localStorage
     restoreChat();
     
-    // Показываем информацию о режиме
-    if (CONFIG.MODE === 'demo') {
-        console.log('⚙️ Режим: Демо (ответы заранее подготовлены)');
-        console.log('💡 Чтобы включить Яндекс GPT, установите CONFIG.MODE = "api" и добавьте ключи');
-    }
+    // Проверяем конфигурацию
+    checkConfiguration();
 });
 
-// Настройка обработчиков
+// Проверка конфигурации
+function checkConfiguration() {
+    if (CONFIG.MODE === 'api') {
+        if (!CONFIG.YANDEX_API_KEY || CONFIG.YANDEX_API_KEY.includes('ваш_ключ')) {
+            showError(`
+                <strong>⚠️ Яндекс API ключ не настроен!</strong><br><br>
+                Чтобы использовать реальный Яндекс GPT:<br>
+                1. Получите API ключ в <a href="https://cloud.yandex.ru/" target="_blank">Яндекс Облаке</a><br>
+                2. Замените ключи в файле script.js:<br>
+                <code>YANDEX_API_KEY: 'ваш_ключ_здесь'</code><br>
+                <code>YANDEX_FOLDER_ID: 'ваш_folder_id_здесь'</code><br><br>
+                <small>Сейчас используется демо-режим.</small>
+            `, true);
+            
+            // Автоматически переключаем в демо-режим
+            CONFIG.MODE = 'demo';
+        }
+    }
+    
+    console.log(`⚙️ Режим: ${CONFIG.MODE === 'api' ? 'Яндекс GPT API' : 'Демо'}`);
+}
+
+// ==================== ОБРАБОТЧИКИ СОБЫТИЙ ====================
+
 function setupEventListeners() {
+    // Кнопки выбора правителя
     document.querySelectorAll('.select-btn').forEach(button => {
         button.addEventListener('click', function() {
             const rulerId = this.dataset.ruler;
@@ -88,6 +155,7 @@ function setupEventListeners() {
         });
     });
     
+    // Отправка вопроса
     sendBtn.addEventListener('click', sendQuestion);
     questionInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -96,8 +164,13 @@ function setupEventListeners() {
         }
     });
     
+    // Счетчик символов
     questionInput.addEventListener('input', updateCharCount);
+    
+    // Очистка чата
     clearChatBtn.addEventListener('click', clearChat);
+    
+    // Модальное окно ошибки
     closeErrorBtn.addEventListener('click', closeErrorModal);
     closeModalBtn.addEventListener('click', closeErrorModal);
     window.addEventListener('click', function(e) {
@@ -107,27 +180,33 @@ function setupEventListeners() {
     });
 }
 
-// Выбор правителя
+// ==================== ВЫБОР ПРАВИТЕЛЯ ====================
+
 function selectRuler(rulerId) {
     currentRuler = RULERS[rulerId];
     
+    // Обновляем отображение
     currentAvatar.textContent = currentRuler.avatar;
     currentRulerName.textContent = currentRuler.name;
     currentRulerDesc.textContent = currentRuler.description;
     
+    // Переключаем экраны
     welcomeScreen.style.display = 'none';
     chatScreen.style.display = 'flex';
     
+    // Если история пустая, добавляем приветствие
     if (chatHistory.length === 0) {
         const greeting = `${currentRuler.avatar} **${currentRuler.name}:** Здравствуй! О чем хочешь поговорить?`;
         addMessageToHistory('bot', greeting);
         updateChatDisplay();
     }
     
+    // Сохраняем выбор в localStorage
     localStorage.setItem('selectedRuler', rulerId);
 }
 
-// Отправка вопроса
+// ==================== ОТПРАВКА ВОПРОСА ====================
+
 async function sendQuestion() {
     const question = questionInput.value.trim();
     
@@ -150,14 +229,14 @@ async function sendQuestion() {
     showLoading(true);
     loadingText.textContent = `${currentRuler.avatar} ${currentRuler.name} обдумывает ответ...`;
     
-    // Имитируем задержку для реалистичности
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Имитируем небольшую задержку для реалистичности
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     try {
         let response;
         
-        if (CONFIG.MODE === 'api' && CONFIG.YANDEX_API_KEY && CONFIG.YANDEX_FOLDER_ID) {
-            // Режим с реальным API
+        if (CONFIG.MODE === 'api') {
+            // Режим с реальным Яндекс GPT API
             response = await askYandexGPT(currentRuler, question);
         } else {
             // Демо-режим
@@ -168,10 +247,17 @@ async function sendQuestion() {
         addMessageToHistory('bot', response);
         
     } catch (error) {
-        console.error('Ошибка:', error);
-        // Если API не работает, используем демо-ответ
-        const demoResponse = getDemoResponse(currentRuler, question);
-        addMessageToHistory('bot', demoResponse);
+        console.error('Ошибка получения ответа:', error);
+        
+        // Пробуем использовать демо-ответ если API не сработал
+        if (CONFIG.USE_DEMO_IF_API_FAILS) {
+            const demoResponse = getDemoResponse(currentRuler, question);
+            addMessageToHistory('bot', `⚠️ ${demoResponse} <small>(демо-ответ)</small>`);
+            showError('Яндекс GPT временно недоступен. Используется демо-режим.');
+        } else {
+            addMessageToHistory('bot', `❌ Ошибка: ${error.message}`);
+            showError(`Не удалось получить ответ: ${error.message}`);
+        }
     } finally {
         showLoading(false);
         updateChatDisplay();
@@ -179,22 +265,20 @@ async function sendQuestion() {
     }
 }
 
-// Функция для запроса к Яндекс GPT API (если включен API режим)
+// ==================== ЯНДЕКС GPT API ====================
+
 async function askYandexGPT(ruler, question) {
+    // Проверяем ключи
     if (!CONFIG.YANDEX_API_KEY || !CONFIG.YANDEX_FOLDER_ID) {
-        throw new Error('API ключи не настроены');
+        throw new Error('API ключи не настроены. Проверьте CONFIG в script.js');
     }
     
-    const url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
+    const targetUrl = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
+    let requestUrl = targetUrl;
     
-    // Определяем системный промпт в зависимости от правителя
-    let systemPrompt;
-    if (ruler.name === 'Иван IV Грозный') {
-        systemPrompt = "Ты - царь Иван IV Грозный. Говоришь грозно, властно, с религиозными оборотами.";
-    } else if (ruler.name === 'Петр I Великий') {
-        systemPrompt = "Ты - царь Петр I Великий. Говоришь грубовато и прямо, любишь корабли и науки.";
-    } else {
-        systemPrompt = "Ты - императрица Екатерина II Великая. Говоришь умно и изящно, любишь искусство.";
+    // Используем прокси если включено
+    if (CONFIG.USE_PROXY) {
+        requestUrl = CONFIG.PROXY_URL + encodeURIComponent(targetUrl);
     }
     
     const headers = {
@@ -212,35 +296,83 @@ async function askYandexGPT(ruler, question) {
         "messages": [
             {
                 "role": "user",
-                "text": `${systemPrompt}\n\nВопрос от ученика: ${question}`
+                "text": `${ruler.systemPrompt}\n\nВопрос от ученика: ${question}\n\nОтветь как ${ruler.name}:`
             }
         ]
     };
     
-    // Используем CORS прокси для GitHub Pages
-    const proxyUrl = 'https://api.allorigins.win/raw?url=';
-    const response = await fetch(proxyUrl + encodeURIComponent(url), {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(data)
-    });
+    console.log('📡 Отправляем запрос к Яндекс GPT...');
     
-    if (!response.ok) {
-        throw new Error(`Ошибка API: ${response.status}`);
+    try {
+        const response = await fetch(requestUrl, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data),
+            mode: CONFIG.USE_PROXY ? 'cors' : 'no-cors'
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Ошибка Яндекс API:', response.status, errorText);
+            
+            if (response.status === 401) {
+                throw new Error('Неверный API ключ. Проверьте CONFIG.YANDEX_API_KEY');
+            } else if (response.status === 404) {
+                throw new Error('Неверный Folder ID. Проверьте CONFIG.YANDEX_FOLDER_ID');
+            } else {
+                throw new Error(`Ошибка Яндекс API (${response.status}): ${errorText.substring(0, 100)}`);
+            }
+        }
+        
+        const result = await response.json();
+        console.log('✅ Получен ответ от Яндекс GPT');
+        
+        // Проверяем структуру ответа
+        if (!result.result || !result.result.alternatives || !result.result.alternatives[0]) {
+            console.error('Неверная структура ответа:', result);
+            throw new Error('Неверный формат ответа от Яндекс GPT');
+        }
+        
+        return result.result.alternatives[0].message.text;
+        
+    } catch (error) {
+        console.error('❌ Ошибка запроса к Яндекс GPT:', error);
+        
+        // Пробуем альтернативный прокси если первый не сработал
+        if (CONFIG.USE_PROXY && error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+            console.log('Пробуем альтернативный прокси...');
+            CONFIG.PROXY_URL = 'https://corsproxy.io/?';
+            return askYandexGPT(ruler, question); // Рекурсивный вызов с новым прокси
+        }
+        
+        throw error;
     }
-    
-    const result = await response.json();
-    return result.result.alternatives[0].message.text;
 }
 
-// Демо-ответы
+// ==================== ДЕМО-РЕЖИМ ====================
+
 function getDemoResponse(ruler, question) {
     const responses = ruler.demoResponses;
-    const randomIndex = Math.floor(Math.random() * responses.length);
-    return responses[randomIndex];
+    
+    // Выбираем ответ на основе хэша вопроса для консистентности
+    const questionHash = hashString(question);
+    const responseIndex = questionHash % responses.length;
+    
+    return responses[responseIndex];
 }
 
-// Остальные функции (такие же как раньше)
+// Простая хэш-функция
+function hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash = hash & hash;
+    }
+    return Math.abs(hash);
+}
+
+// ==================== УПРАВЛЕНИЕ ЧАТОМ ====================
+
 function addMessageToHistory(sender, content) {
     const message = {
         id: Date.now(),
@@ -278,13 +410,15 @@ function updateChatDisplay() {
         chatHistoryElement.appendChild(messageElement);
     });
     
+    // Прокручиваем вниз
     chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
 }
 
 function formatMessage(text) {
     return text
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>');
+        .replace(/\n/g, '<br>')
+        .replace(/<small>(.*?)<\/small>/g, '<small>$1</small>');
 }
 
 function updateCharCount() {
@@ -321,8 +455,12 @@ function showLoading(show) {
     questionInput.disabled = show;
 }
 
-function showError(message) {
-    errorMessage.textContent = message;
+function showError(message, isHtml = false) {
+    if (isHtml) {
+        errorMessage.innerHTML = message;
+    } else {
+        errorMessage.textContent = message;
+    }
     errorModal.style.display = 'flex';
 }
 
@@ -330,10 +468,13 @@ function closeErrorModal() {
     errorModal.style.display = 'none';
 }
 
+// ==================== СОХРАНЕНИЕ И ВОССТАНОВЛЕНИЕ ====================
+
 function saveChat() {
     const chatData = {
         ruler: Object.keys(RULERS).find(key => RULERS[key] === currentRuler),
-        history: chatHistory
+        history: chatHistory,
+        timestamp: new Date().toISOString()
     };
     localStorage.setItem('chatHistory', JSON.stringify(chatData));
 }
@@ -354,7 +495,40 @@ function restoreChat() {
                 }
             } catch (e) {
                 console.error('Ошибка восстановления чата:', e);
+                localStorage.removeItem('chatHistory');
             }
         }
     }
 }
+
+// ==================== ЭКСПОРТ ДЛЯ ОТЛАДКИ ====================
+
+// Для отладки в консоли
+window.debugChat = {
+    getConfig: () => CONFIG,
+    getCurrentRuler: () => currentRuler,
+    getChatHistory: () => chatHistory,
+    clearStorage: () => {
+        localStorage.clear();
+        location.reload();
+    },
+    testAPI: async () => {
+        if (!currentRuler) {
+            alert('Сначала выберите правителя');
+            return;
+        }
+        const testQuestion = 'Привет! Как дела?';
+        console.log('Тестируем API с вопросом:', testQuestion);
+        try {
+            const response = await askYandexGPT(currentRuler, testQuestion);
+            console.log('✅ API работает! Ответ:', response);
+            alert('API работает! Проверьте консоль для ответа.');
+        } catch (error) {
+            console.error('❌ API не работает:', error);
+            alert('API не работает: ' + error.message);
+        }
+    }
+};
+
+console.log('👑 Машина Времени загружена!');
+console.log('Для отладки используйте debugChat в консоли');
