@@ -4,8 +4,8 @@ const CONFIG = {
     MODE: 'api',
     
     // ВАШИ КЛЮЧИ ОТ ЯНДЕКС ОБЛАКА (замените на свои!):
-    YANDEX_API_KEY: 'AQVN...ваш_ключ_здесь...',
-    YANDEX_FOLDER_ID: 'b1g...ваш_folder_id...',
+    YANDEX_API_KEY: 'AQVN0ZcLew0gqWKyFZWMKN7RUTVP8YnzX8oEVydv',
+    YANDEX_FOLDER_ID: 'b1gof6m2ru5t8pqmchi9',
     
     // Использовать демо-ответы если API не работает
     USE_DEMO_IF_API_FAILS: true,
