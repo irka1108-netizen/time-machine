@@ -4,7 +4,7 @@ const CONFIG = {
     MODE: 'api',
     
     // ВАШИ КЛЮЧИ ОТ ЯНДЕКС ОБЛАКА (замените на свои!):
-    YANDEX_API_KEY: 'AQVN1RF3zB-mGk4EiAsSu-sZDExTZLdeuOEzjUC3',
+    YANDEX_API_KEY: 'AQVN1mVjk3ChoQnm0sIMQyyx94534m9IsSYcWDnf',
     YANDEX_FOLDER_ID: 'b1gof6m2ru5t8pqmchi9',
     
     // Использовать демо-ответы если API не работает
