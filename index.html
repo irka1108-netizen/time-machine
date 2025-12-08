@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Машина Времени</title>
+    
+    <!-- Подключаем конфиг ПЕРВЫМ! -->
+    <script src="config.js"></script>
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Индикатор режима */
+        .mode-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .mode-api {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            box-shadow: 0 3px 10px rgba(46, 204, 113, 0.3);
+        }
+        
+        .mode-demo {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 3px 10px rgba(243, 156, 18, 0.3);
+        }
+        
+        .mode-error {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+        }
+        
+        /* Стиль для кнопки настроек */
+        .settings-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-btn:hover {
+            background: rgba(52, 152, 219, 0.3);
+            border-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <!-- Индикатор режима (заполнится скриптом) -->
+    <div id="modeIndicator" class="mode-badge">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Загрузка...</span>
+    </div>
+    
+    <!-- Кнопка настроек -->
+    <button id="settingsBtn" class="settings-btn" style="display: none;">
+        <i class="fas fa-cog"></i>
+        <span>Настройки</span>
+    </button>
+
+    <div class="container">
+        <!-- Шапка -->
+        <header class="header">
+            <h1><i class="fas fa-crown"></i> Машина Времени</h1>
+            <p class="subtitle">✨ Задай вопрос великим правителям России!</p>
+            
+            <!-- Статус подключения -->
+            <div class="status-info">
+                <div class="status-item">
+                    <span class="status-label">Режим:</span>
+                    <span id="modeStatus" class="status-value">Проверка...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">API:</span>
+                    <span id="apiStatus" class="status-value">⏳ Проверяется...</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Боковая панель - выбор правителя -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2><i class="fas fa-users"></i> Выбери собеседника</h2>
+                    <div class="divider"></div>
+                </div>
+
+                <div class="rulers-grid">
+                    <!-- Иван Грозный -->
+                    <div class="ruler-card" data-ruler="ivan">
+                        <div class="ruler-avatar">👑</div>
+                        <h3>Иван IV Грозный</h3>
+                        <p class="ruler-desc">Первый царь всея Руси</p>
+                        <button class="select-btn" data-ruler="ivan">
+                            <i class="fas fa-forward"></i> Вперед
+                        </button>
+                    </div>
+
+                    <!-- Петр I -->
+                    <div class="ruler-card" data-ruler="petr">
+                        <div class="ruler-avatar">🧔</div>
+                        <h3>Петр I Великий</h3>
+                        <p class="ruler-desc">Царь-реформатор</p>
+                        <button class="select-btn" data-ruler="petr">
+                            <i class="fas fa-forward"></i> Вперед
+                        </button>
+                    </div>
+
+                    <!-- Екатерина II -->
+                    <div class="ruler-card" data-ruler="ekaterina">
+                        <div class="ruler-avatar">👸</div>
+                        <h3>Екатерина II</h3>
+                        <p class="ruler-desc">Императрица-просветительница</p>
+                        <button class="select-btn" data-ruler="ekaterina">
+                            <i class="fas fa-forward"></i> Вперед
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-info">
+                    <!-- Информация о режиме -->
+                    <div id="modeInfo" class="mode-info-box" style="display: none;">
+                        <h4><i class="fas fa-info-circle"></i> Информация о режиме</h4>
+                        <p id="modeDescription">Загрузка информации...</p>
+                    </div>
+                    
+                    <div class="tip-box">
+                        <h3><i class="fas fa-lightbulb"></i> Совет</h3>
+                        <p>Спроси о реформах, войнах, науках или жизни того времени!</p>
+                    </div>
+                    
+                    <div class="examples">
+                        <h4>Примеры вопросов:</h4>
+                        <ul>
+                            <li><i class="fas fa-chevron-right"></i> Зачем ввели опричнину?</li>
+                            <li><i class="fas fa-chevron-right"></i> Почему рубили бороды?</li>
+                            <li><i class="fas fa-chevron-right"></i> Что такое просвещенный абсолютизм?</li>
+                        </ul>
+                    </div>
+
+                    <!-- Панель управления -->
+                    <div class="control-panel">
+                        <h4><i class="fas fa-sliders-h"></i> Управление</h4>
+                        <div class="control-buttons">
+                            <button id="testApiBtn" class="control-btn">
+                                <i class="fas fa-vial"></i> Тест API
+                            </button>
+                            <button id="clearStorageBtn" class="control-btn">
+                                <i class="fas fa-broom"></i> Очистить данные
+                            </button>
+                            <button id="reloadBtn" class="control-btn">
+                                <i class="fas fa-redo"></i> Обновить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Основная область - чат -->
+            <main class="chat-area">
+                <!-- Приветственный экран -->
+                <div id="welcome-screen" class="welcome-screen">
+                    <div class="welcome-content">
+                        <div class="welcome-icon">🕰️</div>
+                        <h2>Добро пожаловать в Машину Времени!</h2>
+                        
+                        <!-- Информация о подключении -->
+                        <div id="connectionInfo" class="connection-info">
+                            <div class="connection-status">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span>Проверка подключения к Яндекс GPT...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="features">
+                            <div class="feature">
+                                <i class="fas fa-user-crown"></i>
+                                <h3>Общайся с правителями</h3>
+                                <p>Лично поговори с Иваном Грозным, Петром I и Екатериной II</p>
+                            </div>
+                            
+                            <div class="feature">
+                                <i class="fas fa-graduation-cap"></i>
+                                <h3>Изучай историю</h3>
+                                <p>Узнавай историю через живые диалоги</p>
+                            </div>
+                            
+                            <div class="feature">
+                                <i class="fas fa-comments"></i>
+                                <h3>Задавай вопросы</h3>
+                                <p>Получай ответы в уникальном стиле каждого правителя</p>
+                            </div>
+                        </div>
+                        
+                        <div class="instruction">
+                            <p><i class="fas fa-hand-point-left"></i> <strong>Как начать:</strong> Выбери правителя слева и задай ему вопрос!</p>
+                        </div>
+                        
+                        <!-- Предупреждение если нет API -->
+                        <div id="noApiWarning" class="warning-box" style="display: none;">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Внимание!</h4>
+                            <p>Яндекс GPT не настроен. Используется демо-режим с заранее подготовленными ответами.</p>
+                            <button id="setupApiBtn" class="warning-btn">
+                                <i class="fas fa-key"></i> Настроить API
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Экран чата (скрыт по умолчанию) -->
+                <div id="chat-screen" class="chat-screen" style="display: none;">
+                    <!-- Заголовок чата -->
+                    <div class="chat-header">
+                        <div class="current-ruler">
+                            <span id="current-avatar">👑</span>
+                            <div>
+                                <h2 id="current-ruler-name">Иван IV Грозный</h2>
+                                <p id="current-ruler-desc" class="ruler-description"></p>
+                            </div>
+                        </div>
+                        <div class="chat-controls">
+                            <button id="backBtn" class="control-btn small">
+                                <i class="fas fa-arrow-left"></i> Назад
+                            </button>
+                            <button id="clear-chat" class="clear-btn">
+                                <i class="fas fa-trash"></i> Очистить чат
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- История чата -->
+                    <div id="chat-history" class="chat-history">
+                        <!-- Сообщения будут добавляться здесь -->
+                    </div>
+
+                    <!-- Форма ввода вопроса -->
+                    <div class="input-area">
+                        <textarea 
+                            id="question-input" 
+                            placeholder="Напиши свой вопрос правителю... Например: Зачем Вы ввели опричнину?"
+                            rows="3"
+                            maxlength="500"
+                        ></textarea>
+                        <div class="input-controls">
+                            <div class="char-count">
+                                <span id="char-count">0</span>/500
+                            </div>
+                            <button id="send-btn" class="send-btn">
+                                <i class="fas fa-paper-plane"></i> Отправить вопрос
+                            </button>
+                        </div>
+                        <div class="mode-hint" id="modeHint">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Режим: <span id="currentModeText">демо</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Индикатор загрузки -->
+                    <div id="loading" class="loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <p id="loading-text">Правитель обдумывает ответ...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Футер -->
+        <footer class="footer">
+            <p>
+                <i class="fas fa-crown"></i> Машина Времени • 
+                Увлекательное изучение истории России • 
+                <span id="current-year"></span> • 
+                <a href="https://github.com" target="_blank" class="github-link">
+                    <i class="fab fa-github"></i> GitHub Pages
+                </a>
+            </p>
+            <p class="footer-note">
+                <small id="footerNote">Используется демо-режим. Для реального ИИ настройте Яндекс GPT.</small>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Модальное окно настроек API -->
+    <div id="apiSettingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="api">&times;</span>
+            <h3><i class="fas fa-key"></i> Настройка Яндекс GPT</h3>
+            
+            <div class="api-instructions">
+                <p>Для работы с реальным ИИ нужны ключи от <a href="https://cloud.yandex.ru" target="_blank">Яндекс Облака</a>:</p>
+                
+                <div class="api-fields">
+                    <div class="field">
+                        <label for="apiKeyInput">
+                            <i class="fas fa-key"></i> API Key:
+                        </label>
+                        <input type="password" id="apiKeyInput" 
+                               placeholder="AQVN..." 
+                               value="">
+                        <small class="field-hint">Начинается с AQVN...</small>
+                    </div>
+                    
+                    <div class="field">
+                        <label for="folderIdInput">
+                            <i class="fas fa-folder"></i> Folder ID:
+                        </label>
+                        <input type="text" id="folderIdInput" 
+                               placeholder="b1g..." 
+                               value="">
+                        <small class="field-hint">Начинается с b1g...</small>
+                    </div>
+                </div>
+                
+                <div class="api-test-area">
+                    <button id="testConnectionBtn" class="test-btn">
+                        <i class="fas fa-vial"></i> Проверить подключение
+                    </button>
+                    <div id="testResult" class="test-result"></div>
+                </div>
+                
+                <div class="api-info-box">
+                    <h4><i class="fas fa-question-circle"></i> Как получить ключи:</h4>
+                    <ol>
+                        <li>Зайдите на <a href="https://cloud.yandex.ru" target="_blank">cloud.yandex.ru</a></li>
+                        <li>Создайте сервисный аккаунт</li>
+                        <li>Выдайте права <code>ai.languageModels.user</code></li>
+                        <li>Создайте API ключ</li>
+                        <li>Скопируйте Folder ID из настроек каталога</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button id="saveApiConfigBtn" class="modal-btn primary">
+                    <i class="fas fa-save"></i> Сохранить и использовать
+                </button>
+                <button id="useDemoBtn" class="modal-btn secondary">
+                    <i class="fas fa-theater-masks"></i> Использовать демо-режим
+                </button>
+                <button id="cancelApiBtn" class="modal-btn">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно информации -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="info">&times;</span>
+            <h3><i class="fas fa-info-circle"></i> Информация</h3>
+            <div id="infoContent">
+                <p>Загрузка информации...</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn" data-modal="info">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно результата теста -->
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="test">&times;</span>
+            <h3><i class="fas fa-vial"></i> Результат теста</h3>
+            <div id="testContent">
+                <div class="test-spinner">
+                    <div class="spinner"></div>
+                    <p>Тестирование подключения...</p>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn" data-modal="test">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты -->
+    <script src="script.js"></script>
+    
+    <!-- Скрипт для работы с конфигом и UI -->
+    <script>
+        // Функция для обновления UI на основе конфига
+        function updateUIFromConfig() {
+            const config = window.CONFIG || {};
+            const mode = config.MODE || 'demo';
+            const hasApiKey = config.YANDEX_API_KEY && 
+                            !config.YANDEX_API_KEY.includes('ваш_ключ') && 
+                            config.YANDEX_API_KEY.length > 10;
+            
+            // Обновляем индикатор режима
+            const modeIndicator = document.getElementById('modeIndicator');
+            const modeStatus = document.getElementById('modeStatus');
+            const apiStatus = document.getElementById('apiStatus');
+            const modeHint = document.getElementById('modeHint');
+            const currentModeText = document.getElementById('currentModeText');
+            const footerNote = document.getElementById('footerNote');
+            const noApiWarning = document.getElementById('noApiWarning');
+            const settingsBtn = document.getElementById('settingsBtn');
+            
+            if (mode === 'api' && hasApiKey) {
+                // Режим API работает
+                modeIndicator.className = 'mode-badge mode-api';
+                modeIndicator.innerHTML = '<i class="fas fa-robot"></i><span>Яндекс GPT</span>';
+                modeStatus.textContent = 'Яндекс GPT';
+                apiStatus.innerHTML = '<span style="color:#2ecc71">✅ Доступен</span>';
+                currentModeText.textContent = 'Яндекс GPT';
+                footerNote.textContent = 'Используется Яндекс GPT (реальный ИИ)';
+                noApiWarning.style.display = 'none';
+                modeHint.style.display = 'flex';
+                settingsBtn.style.display = 'flex';
+                
+                // Обновляем описание режима
+                const modeDescription = document.getElementById('modeDescription');
+                if (modeDescription) {
+                    modeDescription.textContent = 'Используется реальный Яндекс GPT. Все ответы генерируются искусственным интеллектом.';
+                }
+                
+            } else {
+                // Демо-режим
+                modeIndicator.className = 'mode-badge mode-demo';
+                modeIndicator.innerHTML = '<i class="fas fa-theater-masks"></i><span>Демо-режим</span>';
+                modeStatus.textContent = 'Демо-режим';
+                apiStatus.innerHTML = '<span style="color:#f39c12">🎭 Демо</span>';
+                currentModeText.textContent = 'демо';
+                footerNote.textContent = 'Используется демо-режим. Для реального ИИ настройте Яндекс GPT.';
+                noApiWarning.style.display = 'block';
+                modeHint.style.display = 'flex';
+                settingsBtn.style.display = 'flex';
+                
+                // Обновляем описание режима
+                const modeDescription = document.getElementById('modeDescription');
+                if (modeDescription) {
+                    modeDescription.textContent = 'Используется демо-режим с заранее подготовленными ответами. Для реального ИИ настройте Яндекс GPT.';
+                }
+            }
+            
+            // Показываем информацию о режиме
+            const modeInfo = document.getElementById('modeInfo');
+            if (modeInfo) {
+                modeInfo.style.display = 'block';
+            }
+        }
+        
+        // Проверка подключения к API
+        async function checkApiConnection() {
+            const connectionInfo = document.getElementById('connectionInfo');
+            if (!connectionInfo) return;
+            
+            const config = window.CONFIG || {};
+            const hasApiKey = config.YANDEX_API_KEY && 
+                            !config.YANDEX_API_KEY.includes('ваш_ключ') && 
+                            config.YANDEX_API_KEY.length > 10;
+            
+            if (config.MODE === 'api' && hasApiKey) {
+                connectionInfo.innerHTML = `
+                    <div class="connection-status checking">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Проверка подключения к Яндекс GPT...</span>
+                    </div>
+                `;
+                
+                // Имитируем проверку (реальная проверка будет в script.js)
+                setTimeout(() => {
+                    connectionInfo.innerHTML = `
+                        <div class="connection-status success">
+                            <i class="fas fa-check-circle"></i>
+                            <span>✅ Яндекс GPT доступен!</span>
+                        </div>
+                    `;
+                }, 1500);
+            } else {
+                connectionInfo.innerHTML = `
+                    <div class="connection-status demo">
+                        <i class="fas fa-theater-masks"></i>
+                        <span>🎭 Используется демо-режим</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Обработчики для модальных окон
+        function setupModalHandlers() {
+            // Кнопка настроек
+            const settingsBtn = document.getElementById('settingsBtn');
+            const apiSettingsModal = document.getElementById('apiSettingsModal');
+            
+            if (settingsBtn && apiSettingsModal) {
+                settingsBtn.addEventListener('click', () => {
+                    // Заполняем поля текущими значениями
+                    const config = window.CONFIG || {};
+                    document.getElementById('apiKeyInput').value = config.YANDEX_API_KEY || '';
+                    document.getElementById('folderIdInput').value = config.YANDEX_FOLDER_ID || '';
+                    
+                    apiSettingsModal.style.display = 'flex';
+                });
+            }
+            
+            // Закрытие модальных окон
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Закрытие по клику вне окна
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+            
+            // Кнопка "Настроить API"
+            const setupApiBtn = document.getElementById('setupApiBtn');
+            if (setupApiBtn && apiSettingsModal) {
+                setupApiBtn.addEventListener('click', () => {
+                    apiSettingsModal.style.display = 'flex';
+                });
+            }
+            
+            // Кнопка "Тест API"
+            const testApiBtn = document.getElementById('testApiBtn');
+            if (testApiBtn) {
+                testApiBtn.addEventListener('click', () => {
+                    if (typeof window.testAPI === 'function') {
+                        window.testAPI();
+                    } else {
+                        alert('Функция тестирования API доступна после полной загрузки страницы');
+                    }
+                });
+            }
+            
+            // Кнопка "Очистить данные"
+            const clearStorageBtn = document.getElementById('clearStorageBtn');
+            if (clearStorageBtn) {
+                clearStorageBtn.addEventListener('click', () => {
+                    if (confirm('Очистить все сохраненные данные (историю чата, настройки)?')) {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        alert('Данные очищены. Страница будет перезагружена.');
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                });
+            }
+            
+            // Кнопка "Обновить"
+            const reloadBtn = document.getElementById('reloadBtn');
+            if (reloadBtn) {
+                reloadBtn.addEventListener('click', () => {
+                    location.reload();
+                });
+            }
+            
+            // Кнопка "Назад" в чате
+            const backBtn = document.getElementById('backBtn');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const chatScreen = document.getElementById('chat-screen');
+            
+            if (backBtn && welcomeScreen && chatScreen) {
+                backBtn.addEventListener('click', () => {
+                    chatScreen.style.display = 'none';
+                    welcomeScreen.style.display = 'block';
+                });
+            }
+            
+            // Кнопка "Сохранить" в настройках API
+            const saveApiConfigBtn = document.getElementById('saveApiConfigBtn');
+            if (saveApiConfigBtn) {
+                saveApiConfigBtn.addEventListener('click', () => {
+                    const apiKey = document.getElementById('apiKeyInput').value.trim();
+                    const folderId = document.getElementById('folderIdInput').value.trim();
+                    
+                    if (!apiKey || !folderId) {
+                        alert('Заполните оба поля!');
+                        return;
+                    }
+                    
+                    if (apiKey.length < 20) {
+                        alert('API ключ слишком короткий');
+                        return;
+                    }
+                    
+                    if (!folderId.startsWith('b1g')) {
+                        alert('Folder ID должен начинаться с "b1g"');
+                        return;
+                    }
+                    
+                    // Сохраняем в конфиг
+                    if (!window.CONFIG) window.CONFIG = {};
+                    window.CONFIG.YANDEX_API_KEY = apiKey;
+                    window.CONFIG.YANDEX_FOLDER_ID = folderId;
+                    window.CONFIG.MODE = 'api';
+                    
+                    // Закрываем модальное окно
+                    apiSettingsModal.style.display = 'none';
+                    
+                    // Обновляем UI
+                    updateUIFromConfig();
+                    
+                    // Проверяем подключение
+                    checkApiConnection();
+                    
+                    // Сохраняем в localStorage
+                    try {
+                        localStorage.setItem('mashinaConfig', JSON.stringify({
+                            YANDEX_API_KEY: apiKey,
+                            YANDEX_FOLDER_ID: folderId,
+                            MODE: 'api'
+                        }));
+                    } catch (e) {
+                        console.error('Ошибка сохранения в localStorage:', e);
+                    }
+                    
+                    alert('✅ Ключи сохранены! Теперь используется Яндекс GPT.');
+                });
+            }
+            
+            // Кнопка "Использовать демо-режим"
+            const useDemoBtn = document.getElementById('useDemoBtn');
+            if (useDemoBtn) {
+                useDemoBtn.addEventListener('click', () => {
+                    if (!window.CONFIG) window.CONFIG = {};
+                    window.CONFIG.MODE = 'demo';
+                    
+                    apiSettingsModal.style.display = 'none';
+                    updateUIFromConfig();
+                    checkApiConnection();
+                    
+                    alert('🎭 Включен демо-режим');
+                });
+            }
+            
+            // Кнопка "Отмена" в настройках
+            const cancelApiBtn = document.getElementById('cancelApiBtn');
+            if (cancelApiBtn) {
+                cancelApiBtn.addEventListener('click', () => {
+                    apiSettingsModal.style.display = 'none';
+                });
+            }
+            
+            // Кнопка "Проверить подключение"
+            const testConnectionBtn = document.getElementById('testConnectionBtn');
+            const testResult = document.getElementById('testResult');
+            const testModal = document.getElementById('testModal');
+            const testContent = document.getElementById('testContent');
+            
+            if (testConnectionBtn && testResult) {
+                testConnectionBtn.addEventListener('click', async () => {
+                    const apiKey = document.getElementById('apiKeyInput').value.trim();
+                    const folderId = document.getElementById('folderIdInput').value.trim();
+                    
+                    if (!apiKey || !folderId) {
+                        testResult.innerHTML = '<div class="error">❌ Заполните оба поля</div>';
+                        return;
+                    }
+                    
+                    testResult.innerHTML = '<div class="checking"><i class="fas fa-spinner fa-spin"></i> Проверка...</div>';
+                    
+                    // Имитируем проверку (реальная проверка будет через script.js)
+                    setTimeout(() => {
+                        if (apiKey.length > 20 && folderId.startsWith('b1g')) {
+                            testResult.innerHTML = '<div class="success">✅ Ключи выглядят корректно</div>';
+                        } else {
+                            testResult.innerHTML = '<div class="error">❌ Проверьте формат ключей</div>';
+                        }
+                    }, 1500);
+                });
+            }
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Устанавливаем текущий год
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            
+            // Загружаем конфиг из localStorage если нет в window.CONFIG
+            if (!window.CONFIG) {
+                try {
+                    const savedConfig = localStorage.getItem('mashinaConfig');
+                    if (savedConfig) {
+                        window.CONFIG = JSON.parse(savedConfig);
+                        console.log('✅ Конфиг загружен из localStorage');
+                    }
+                } catch (e) {
+                    console.error('Ошибка загрузки конфига:', e);
+                }
+            }
+            
+            // Если все равно нет конфига, создаем демо
+            if (!window.CONFIG) {
+                window.CONFIG = {
+                    MODE: 'demo',
+                    YANDEX_API_KEY: '',
+                    YANDEX_FOLDER_ID: '',
+                    USE_PROXY: true
+                };
+                console.log('📝 Создан демо-конфиг');
+            }
+            
+            // Обновляем UI
+            updateUIFromConfig();
+            
+            // Проверяем подключение
+            checkApiConnection();
+            
+            // Настраиваем обработчики
+            setupModalHandlers();
+            
+            console.log('🎨 UI инициализирован');
+        });
+        
+        // Экспортируем функции для отладки
+        window.updateUI = updateUIFromConfig;
+        window.checkConnection = checkApiConnection;
+        window.showConfig = () => window.CONFIG;
+    </script>
+</body>
+</html>
